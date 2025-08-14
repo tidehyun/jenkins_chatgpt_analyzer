@@ -1,0 +1,78 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:t="/lib/hudson">
+  <l:layout>
+    <l:main-panel>
+      <h1>🧠 ChatGPT 빌드 분석 결과</h1>
+      <pre style="white-space: pre-wrap; font-family: monospace">
+        ${it.result}
+      </pre>
+
+      <hr/>
+
+      <h2>❓ 추가로 GPT에게 물어보기</h2>
+      <div id="chat-box" style="border: 1px solid #ccc; padding: 1em; max-height: 400px; overflow-y: auto; background: #f1f1f1; border-radius: 10px; font-family: sans-serif;">
+      </div>
+
+      <form id="chat-form" onsubmit="sendQuestion(); return false;" style="margin-top: 1em; display: flex;">
+        <input type="text" id="question" placeholder="궁금한 점을 입력하세요..." style="flex: 1; padding: 10px; font-size: 1em; border-radius: 20px; border: 1px solid #ccc;" />
+        <input type="submit" value="질문" class="submit-button" style="margin-left: 10px; padding: 10px 20px; border: none; background-color: #007bff; color: white; border-radius: 20px; cursor: pointer;" />
+      </form>
+
+      <script>
+        function escapeHTML(text) {
+          var div = document.createElement("div");
+          div.textContent = text;
+          return div.innerHTML;
+        }
+
+        function createBubble(content, isUser) {
+          const bubble = document.createElement("div");
+          bubble.style.maxWidth = "75%";
+          bubble.style.margin = "0.5em";
+          bubble.style.padding = "0.8em 1em";
+          bubble.style.borderRadius = "1em";
+          bubble.style.clear = "both";
+          bubble.style.wordBreak = "break-word";
+          bubble.style.whiteSpace = "pre-wrap";
+          bubble.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+          bubble.style.fontSize = "1em";
+
+          if (isUser) {
+            bubble.style.background = "#d1eaff";
+            bubble.style.alignSelf = "flex-end";
+            bubble.style.marginLeft = "auto";
+          } else {
+            bubble.style.background = "#e8e8e8";
+            bubble.style.alignSelf = "flex-start";
+            bubble.style.marginRight = "auto";
+          }
+
+          bubble.innerHTML = escapeHTML(content);
+          return bubble;
+        }
+
+        function sendQuestion() {
+          const query = document.getElementById("question").value;
+          if (!query.trim()) return;
+
+          const chatBox = document.getElementById("chat-box");
+          chatBox.appendChild(createBubble("🙋 " + query, true));
+          chatBox.scrollTop = chatBox.scrollHeight;
+
+          const xhr = new XMLHttpRequest();
+          xhr.open("GET", "askQuestion?query=" + encodeURIComponent(query), true);
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+              const res = xhr.responseText || "GPT 응답 없음";
+              chatBox.appendChild(createBubble("🤖 " + res, false));
+              chatBox.scrollTop = chatBox.scrollHeight;
+            }
+          };
+          xhr.send();
+          document.getElementById("question").value = "";
+        }
+      </script>
+
+    </l:main-panel>
+  </l:layout>
+</j:jelly>

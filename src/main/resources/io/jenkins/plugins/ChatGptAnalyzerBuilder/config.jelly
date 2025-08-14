@@ -1,0 +1,14 @@
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+
+  <f:section title="OpenAI 인증 설정">
+  
+	<f:entry title="GPT 모델 선택" field="model">
+      <f:select default="gpt-4o" />
+    </f:entry>
+    <f:entry title="OpenAI API Key" field="apiKey">
+      <f:password/>
+    </f:entry>
+    
+  </f:section>
+
+</j:jelly>
